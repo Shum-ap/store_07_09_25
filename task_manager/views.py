@@ -1,13 +1,40 @@
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
-from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from django.db.models import Q
-from datetime import datetime
+from rest_framework.filters import SearchFilter, OrderingFilter
 from .models import SubTask, Task
-from .serializers import SubTaskCreateSerializer, SubTaskSerializer, TaskDetailSerializer
+from .serializers import TaskCreateSerializer, SubTaskCreateSerializer, TaskDetailSerializer, SubTaskSerializer
 from .pagination import SubTaskPagination
 
 # Задание 1:
+class TaskListCreateView(ListCreateAPIView):
+    queryset = Task.objects.all()
+    serializer_class = TaskCreateSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['completed', 'deadline']
+    search_fields = ['title', 'description']
+    ordering_fields = ['created_at']
+    ordering = ['-created_at']
+
+class TaskRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
+    queryset = Task.objects.all()
+    serializer_class = TaskCreateSerializer
+
+# Задание 2:
+class SubTaskListCreateView(ListCreateAPIView):
+    queryset = SubTask.objects.all()
+    serializer_class = SubTaskCreateSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['completed']
+    search_fields = ['title']
+    ordering_fields = ['created_at']
+    ordering = ['-created_at']
+    pagination_class = SubTaskPagination
+
+class SubTaskRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
+    queryset = SubTask.objects.all()
+    serializer_class = SubTaskCreateSerializer
+
+# Задание 3:
 class TaskByDayListView(ListAPIView):
     serializer_class = TaskDetailSerializer
 
@@ -28,17 +55,6 @@ class TaskByDayListView(ListAPIView):
                 return Task.objects.filter(due_date__week_day=day_num)
         return Task.objects.all()
 
-# Задание 2:
-class SubTaskListCreateView(ListCreateAPIView):
-    serializer_class = SubTaskCreateSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['completed', 'task__title']
-    pagination_class = SubTaskPagination
-
-    def get_queryset(self):
-        return SubTask.objects.all().order_by('-created_at')
-
-# Задание 3:
 class SubTaskFilteredList(ListAPIView):
     serializer_class = SubTaskSerializer
     filter_backends = [DjangoFilterBackend]
@@ -49,7 +65,3 @@ class SubTaskFilteredList(ListAPIView):
         queryset = SubTask.objects.all()
         queryset = queryset.order_by('-created_at')
         return queryset
-
-class SubTaskDetailUpdateDeleteView(RetrieveUpdateDestroyAPIView):
-    queryset = SubTask.objects.all()
-    serializer_class = SubTaskCreateSerializer

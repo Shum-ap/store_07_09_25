@@ -15,7 +15,7 @@ class Task(models.Model):
     deadline = models.DateTimeField(null=True, blank=True)
     due_date = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    completed = models.BooleanField(default=False)
+    completed = models.BooleanField(default=False)  # status
 
     def __str__(self):
         return self.title
@@ -23,7 +23,7 @@ class Task(models.Model):
 class SubTask(models.Model):
     title = models.CharField(max_length=200)
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='subtasks')
-    completed = models.BooleanField(default=False)
+    completed = models.BooleanField(default=False)  # status
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
