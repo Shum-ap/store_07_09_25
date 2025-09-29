@@ -1,0 +1,260 @@
+From 88b633d883b77b2b2afb9a71afbfae6073a0ec8e Mon Sep 17 00:00:00 2001
+From: Shum-ap <apet5685@gmail.com>
+Date: Tue, 9 Sep 2025 10:51:47 +0200
+Subject: [PATCH] =?UTF-8?q?=D0=94=D0=BE=D0=B1=D0=B0=D0=B2=D0=B8=D0=BB=20He?=
+ =?UTF-8?q?llo=20Oleksandr=20=D0=BD=D0=B0=208003=20=D0=B8=20=D0=BF=D1=80?=
+ =?UTF-8?q?=D0=B0=D0=B2=D0=BA=D0=B8=20=D0=BF=D1=80=D0=BE=D0=B5=D0=BA=D1=82?=
+ =?UTF-8?q?=D0=B0?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .idea/misc.xml                  |  2 +-
+ .idea/store_8_09_25.iml         |  2 +-
+ products/__init__.py            |  0
+ products/admin.py               | 66 +++++++++++++++++++++++++
+ products/apps.py                |  6 +++
+ products/migrations/__init__.py |  0
+ products/models.py              | 86 +++++++++++++++++++++++++++++++++
+ products/tests.py               |  3 ++
+ products/views.py               |  3 ++
+ 9 files changed, 166 insertions(+), 2 deletions(-)
+ create mode 100644 products/__init__.py
+ create mode 100644 products/admin.py
+ create mode 100644 products/apps.py
+ create mode 100644 products/migrations/__init__.py
+ create mode 100644 products/models.py
+ create mode 100644 products/tests.py
+ create mode 100644 products/views.py
+
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+index 26d0acb..133b3a4 100644
+--- a/.idea/misc.xml
++++ b/.idea/misc.xml
+@@ -3,5 +3,5 @@
+   <component name="Black">
+     <option name="sdkName" value="Python 3.13 (store_8_09_25)" />
+   </component>
+-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.13 (store_8_09_25)" project-jdk-type="Python SDK" />
++  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.13 (store_08_09_25)" project-jdk-type="Python SDK" />
+ </project>
+\ No newline at end of file
+diff --git a/.idea/store_8_09_25.iml b/.idea/store_8_09_25.iml
+index 6570635..9d90d31 100644
+--- a/.idea/store_8_09_25.iml
++++ b/.idea/store_8_09_25.iml
+@@ -16,7 +16,7 @@
+     <content url="file://$MODULE_DIR$">
+       <excludeFolder url="file://$MODULE_DIR$/.venv" />
+     </content>
+-    <orderEntry type="jdk" jdkName="Python 3.13 (store_8_09_25)" jdkType="Python SDK" />
++    <orderEntry type="jdk" jdkName="Python 3.13 (store_08_09_25)" jdkType="Python SDK" />
+     <orderEntry type="sourceFolder" forTests="false" />
+   </component>
+   <component name="TemplatesService">
+diff --git a/products/__init__.py b/products/__init__.py
+new file mode 100644
+index 0000000..e69de29
+diff --git a/products/admin.py b/products/admin.py
+new file mode 100644
+index 0000000..230a416
+--- /dev/null
++++ b/products/admin.py
+@@ -0,0 +1,66 @@
++from .models import Category, Supplier, Product, ProductDetail, Address,Customer, Order, OrderItem
++
++@admin.register(Category)
++class CategoryAdmin(admin.ModelAdmin):
++    list_display = ('name',)
++    search_fields = ('name',)
++    ordering = ('name',)
++
++
++@admin.register(Supplier)
++class SupplierAdmin(admin.ModelAdmin):
++    list_display = ('name', 'contact_email', 'phone_number')
++    search_fields = ('name', 'contact_email', 'phone_number')
++    ordering = ('name',)
++
++
++@admin.register(Product)
++class ProductAdmin(admin.ModelAdmin):
++    list_display = [
++        'name',
++        'category',
++        'supplier',
++        'price',
++         'quantity'
++         'article',
++         'available'
++    ]
++     list_filter = [
++         'category',
++         'supplier',
++         'available'
++    ]
++    search_fields = [
++         'name',
++         'article',
++    ]
++    ordering = [
++         'category',
++         'quantity'
++    ]
++    list_editable = [
++         'price',
++         'quantity',
++         'available'
++    ]
++
++@admin.register(Address)
++class AddressAdmin(admin.ModelAdmin):
++    list_display = ('country', 'city', 'street', 'house')
++    search_fields = ('country', 'city', 'street', 'house')
++    ordering = ('country', 'city', 'street')
++
++
++@admin.register(Customer)
++class CustomerAdmin(admin.ModelAdmin):
++    list_display = ('first_name', 'last_name', 'email', 'phone_number','date_joined', 'deleted')
++    search_fields = ('first_name', 'last_name', 'email', 'phone_number')
++    ordering = ('-date_joined',)
++    list_filter = ('deleted',)
++    list_editable = ('deleted',)
++
++@admin.register(Order)
++class OrderAdmin(admin.ModelAdmin):
++    list_display = ('id', 'order_date', 'customer')
++    search_fields = ('customer__first_name', 'customer__last_name','customer__email')
++    ordering = ('-order_date',)
+\ No newline at end of file
+diff --git a/products/apps.py b/products/apps.py
+new file mode 100644
+index 0000000..145a2ac
+--- /dev/null
++++ b/products/apps.py
+@@ -0,0 +1,6 @@
++from django.apps import AppConfig
++
++
++class ProductsConfig(AppConfig):
++    default_auto_field = 'django.db.models.BigAutoField'
++    name = 'products'
+diff --git a/products/migrations/__init__.py b/products/migrations/__init__.py
+new file mode 100644
+index 0000000..e69de29
+diff --git a/products/models.py b/products/models.py
+new file mode 100644
+index 0000000..7865235
+--- /dev/null
++++ b/products/models.py
+@@ -0,0 +1,86 @@
++from django.db import models
++
++# Create your models here.
++class Category(models.Model):
++    name = models.CharField(max_length=40, unique=True)
++    def __str__(self):
++        return self.name
++    class Meta:
++        ordering = ['name']
++        verbose_name_plural = 'categories'
++
++
++class Supplier(models.Model):
++    name = models.CharField(max_length=100, unique=True)
++    contact_email = models.EmailField(unique=True)
++    phone_number = models.CharField(max_length=20, unique=True)
++    def __str__(self):
++        return self.name
++
++class Product(models.Model):
++    name = models.CharField(max_length=100)
++    category = models.ForeignKey(Category, on_delete=models.PROTECT,related_name='products')
++    supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT,related_name='products')
++    price = models.DecimalField(max_digits=10, decimal_places=2)
++    quantity = models.PositiveSmallIntegerField()
++    article = models.CharField(max_length=100, unique=True, help_text='Unique string product id',db_index=True)
++    available = models.BooleanField(default=True)
++    def __str__(self):
++        return self.name
++    class Meta:
++        ordering = ['category', 'quantity']
++
++
++class ProductDetail(models.Model):
++    product = models.OneToOneField(Product, on_delete=models.CASCADE,related_name='details')
++    description = models.TextField(null=True, blank=True)
++    manufacturing_date = models.DateField(null=True, blank=True)
++    expiration_date = models.DateField(null=True, blank=True)
++    weight = models.DecimalField(null=True, blank=True, max_digits=5,decimal_places=2)
++    def __str__(self):
++        return f"Details of {self.product.name}"
++
++class Address(models.Model):
++    country = models.CharField(max_length=100)
++    city = models.CharField(max_length=100)
++    street = models.CharField(max_length=255)
++    house = models.CharField(max_length=6)
++    def __str__(self):
++        return f"{self.street}, {self.house}"
++    class Meta:
++        verbose_name_plural = 'addresses'
++
++
++class Customer(models.Model):
++    first_name = models.CharField(max_length=50)
++    last_name = models.CharField(max_length=50)
++    email = models.EmailField(unique=True)
++    phone_number = models.CharField(max_length=15)
++    address = models.OneToOneField(Address, null=True,on_delete=models.SET_NULL, related_name='customer')
++    date_joined = models.DateTimeField(auto_now_add=True)
++    deleted = models.BooleanField(default=False)
++    deleted_at = models.DateTimeField(null=True, blank=True)
++    def __str__(self):
++        return f"{self.first_name} {self.last_name}"
++    class Meta:
++        ordering = ['-date_joined']
++        get_latest_by = 'date_joined'
++
++
++class Order(models.Model):
++    order_date = models.DateTimeField(auto_now_add=True)
++    customer = models.ForeignKey(Customer, on_delete=models.PROTECT,related_name='orders')
++    def __str__(self):
++        return f"Order {self.id} by {self.customer}"
++    class Meta:
++        ordering = ['-order_date']
++        get_latest_by = 'order_date'
++
++
++class OrderItem(models.Model):
++    order = models.ForeignKey(Order, on_delete=models.CASCADE,related_name='items')
++    product = models.ForeignKey(Product, on_delete=models.PROTECT,related_name='order_items')
++    quantity = models.PositiveSmallIntegerField()
++    price = models.DecimalField(max_digits=10, decimal_places=2)
++    def __str__(self):
++        return f"{self.quantity} x {self.product.name} for {self.order}"
+\ No newline at end of file
+diff --git a/products/tests.py b/products/tests.py
+new file mode 100644
+index 0000000..7ce503c
+--- /dev/null
++++ b/products/tests.py
+@@ -0,0 +1,3 @@
++from django.test import TestCase
++
++# Create your tests here.
+diff --git a/products/views.py b/products/views.py
+new file mode 100644
+index 0000000..91ea44a
+--- /dev/null
++++ b/products/views.py
+@@ -0,0 +1,3 @@
++from django.shortcuts import render
++
++# Create your views here.
+-- 
+2.45.1.windows.1
+
