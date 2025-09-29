@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Магазин{% endblock %}</title>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <header>
+        <h1>🛒 Магазин товаров</h1>
+        <nav>
+            <a href="/">Главная</a> |
+            <a href="/products/">Товары</a> |
+            <a href="/admin/">Админка</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        {% block content %}
+        <!-- Содержимое страниц будет здесь -->
+        {% endblock %}
+    </main>
+
+    <footer>
+        <hr>
+        <p>&copy; 2025 Мой интернет-магазин. Все права защищены.</p>
+    </footer>
+</body>
+</html>
