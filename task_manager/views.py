@@ -13,7 +13,7 @@ from .serializers import (
     SubTaskSerializer,
     CategorySerializer
 )
-from .pagination import SubTaskPagination
+
 
 # Задание 1:
 class CategoryViewSet(ModelViewSet):
@@ -48,7 +48,7 @@ class SubTaskListCreateView(ListCreateAPIView):
     search_fields = ['title']
     ordering_fields = ['created_at']
     ordering = ['-created_at']
-    pagination_class = SubTaskPagination
+
 
 class SubTaskRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     queryset = SubTask.objects.all()
@@ -78,7 +78,7 @@ class SubTaskFilteredList(ListAPIView):
     serializer_class = SubTaskSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['completed', 'task__title']
-    pagination_class = SubTaskPagination
+
 
     def get_queryset(self):
         queryset = SubTask.objects.all()
