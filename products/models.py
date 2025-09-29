@@ -1,6 +1,6 @@
 from django.db import models
 
-# Create your models here.
+
 class Category(models.Model):
     name = models.CharField(max_length=40, unique=True)
     def __str__(self):
@@ -32,13 +32,13 @@ class Product(models.Model):
 
 
 class ProductDetail(models.Model):
-    product = models.OneToOneField(Product, on_delete=models.CASCADE,related_name='details')
-    description = models.TextField(null=True, blank=True)
-    manufacturing_date = models.DateField(null=True, blank=True)
-    expiration_date = models.DateField(null=True, blank=True)
-    weight = models.DecimalField(null=True, blank=True, max_digits=5,decimal_places=2)
+    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='details')
+    weight = models.DecimalField(max_digits=6, decimal_places=2)
+    dimensions = models.CharField(max_length=50, blank=True, null=True)
+    color = models.CharField(max_length=30, blank=True, null=True)  # ← новое поле
+
     def __str__(self):
-        return f"Details of {self.product.name}"
+        return f"Details for {self.product.name}"
 
 class Address(models.Model):
     country = models.CharField(max_length=100)
