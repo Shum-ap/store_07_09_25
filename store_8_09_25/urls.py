@@ -31,6 +31,6 @@ router.register(r'order-items', product_views.OrderItemViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/v1/', include(router.urls)),
-    path('api/v1/', include('task_manager.urls')),
+    path('api/v1/products/', include(router.urls)),
+    path('api/v1/tasks/', include('task_manager.urls')),
 ]

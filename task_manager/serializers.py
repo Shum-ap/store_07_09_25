@@ -2,6 +2,11 @@ from rest_framework import serializers
 from .models import Category, Task, SubTask
 from django.utils import timezone
 
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'
+
 class SubTaskCreateSerializer(serializers.ModelSerializer):
     created_at = serializers.DateTimeField(read_only=True)
 

@@ -1,11 +1,32 @@
+from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
-from .models import SubTask, Task
-from .serializers import TaskCreateSerializer, SubTaskCreateSerializer, TaskDetailSerializer, SubTaskSerializer
+from .models import SubTask, Task, Category
+from .serializers import (
+    TaskCreateSerializer,
+    SubTaskCreateSerializer,
+    TaskDetailSerializer,
+    SubTaskSerializer,
+    CategorySerializer
+)
 from .pagination import SubTaskPagination
 
 # Задание 1:
+class CategoryViewSet(ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+    @action(detail=True, methods=['get'])
+    def count_tasks(self, request, pk=None):
+        category = self.get_object()
+        task_count = Task.objects.filter(category=category, is_deleted=False).count()
+        return Response({'task_count': task_count})
+
+# Задание 2:
 class TaskListCreateView(ListCreateAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskCreateSerializer
@@ -19,7 +40,6 @@ class TaskRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskCreateSerializer
 
-# Задание 2:
 class SubTaskListCreateView(ListCreateAPIView):
     queryset = SubTask.objects.all()
     serializer_class = SubTaskCreateSerializer
@@ -34,7 +54,6 @@ class SubTaskRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     queryset = SubTask.objects.all()
     serializer_class = SubTaskCreateSerializer
 
-# Задание 3:
 class TaskByDayListView(ListAPIView):
     serializer_class = TaskDetailSerializer
 
