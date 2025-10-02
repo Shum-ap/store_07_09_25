@@ -1,61 +1,30 @@
-from rest_framework import status
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
+from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import SearchFilter, OrderingFilter
-from .models import SubTask, Task, Category
-from .serializers import (
-    TaskCreateSerializer,
-    SubTaskCreateSerializer,
-    TaskDetailSerializer,
-    SubTaskSerializer,
-    CategorySerializer
-)
+from rest_framework.generics import ListAPIView
+from .models import Task, SubTask
+from .serializers import TaskSerializer, SubTaskSerializer
 
-
-# Задание 1:
-class CategoryViewSet(ModelViewSet):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-
-    @action(detail=True, methods=['get'])
-    def count_tasks(self, request, pk=None):
-        category = self.get_object()
-        task_count = Task.objects.filter(category=category, is_deleted=False).count()
-        return Response({'task_count': task_count})
-
-# Задание 2:
-class TaskListCreateView(ListCreateAPIView):
+class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
-    serializer_class = TaskCreateSerializer
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    serializer_class = TaskSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['completed', 'deadline']
     search_fields = ['title', 'description']
     ordering_fields = ['created_at']
     ordering = ['-created_at']
 
-class TaskRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
-    queryset = Task.objects.all()
-    serializer_class = TaskCreateSerializer
-
-class SubTaskListCreateView(ListCreateAPIView):
+class SubTaskViewSet(viewsets.ModelViewSet):
     queryset = SubTask.objects.all()
-    serializer_class = SubTaskCreateSerializer
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    serializer_class = SubTaskSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['completed']
     search_fields = ['title']
     ordering_fields = ['created_at']
     ordering = ['-created_at']
 
-
-class SubTaskRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
-    queryset = SubTask.objects.all()
-    serializer_class = SubTaskCreateSerializer
-
+# --- Агрегирующий эндпойнт ---
 class TaskByDayListView(ListAPIView):
-    serializer_class = TaskDetailSerializer
+    serializer_class = TaskSerializer
 
     def get_queryset(self):
         day = self.request.query_params.get('day', None)
@@ -73,14 +42,3 @@ class TaskByDayListView(ListAPIView):
             if day_num:
                 return Task.objects.filter(due_date__week_day=day_num)
         return Task.objects.all()
-
-class SubTaskFilteredList(ListAPIView):
-    serializer_class = SubTaskSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['completed', 'task__title']
-
-
-    def get_queryset(self):
-        queryset = SubTask.objects.all()
-        queryset = queryset.order_by('-created_at')
-        return queryset
