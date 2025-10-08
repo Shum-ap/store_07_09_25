@@ -1,20 +1,28 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from . import views
+from .views import (
+    CategoryViewSet,
+    TaskListCreateView,
+    TaskRetrieveUpdateDestroyView,
+    SubTaskListCreateView,
+    SubTaskRetrieveUpdateDestroyView,
+    TaskByDayListView,
+)
 
 router = DefaultRouter()
-router.register(r'categories', views.CategoryViewSet, basename='category')
+router.register(r'categories', CategoryViewSet, basename='category')
 
 urlpatterns = [
     path('', include(router.urls)),
 
-    path('tasks/', views.TaskListCreateView.as_view(), name='task-list-create'),
-    path('tasks/<int:pk>/', views.TaskRetrieveUpdateDestroyView.as_view(), name='task-detail-update-delete'),
+    # --- задачи ---
+    path('tasks/', TaskListCreateView.as_view(), name='task-list-create'),
+    path('tasks/<int:pk>/', TaskRetrieveUpdateDestroyView.as_view(), name='task-detail'),
 
-    path('subtasks/', views.SubTaskListCreateView.as_view(), name='subtask-list-create'),
-    path('subtasks/<int:pk>/', views.SubTaskRetrieveUpdateDestroyView.as_view(), name='subtask-detail-update-delete'),
+    # --- подзадачи ---
+    path('subtasks/', SubTaskListCreateView.as_view(), name='subtask-list-create'),
+    path('subtasks/<int:pk>/', SubTaskRetrieveUpdateDestroyView.as_view(), name='subtask-detail'),
 
-    path('tasks/by-day/', views.TaskByDayListView.as_view(), name='task-by-day'),
-
-    path('subtasks/filter/', views.SubTaskFilteredList.as_view(), name='subtask-filtered-list'),
+    # --- агрегирующий эндпойнт ---
+    path('tasks/by-day/', TaskByDayListView.as_view(), name='task-by-day'),
 ]

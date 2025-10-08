@@ -12,16 +12,18 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 from environ import Env
-import os
 
+# Создаём объект Env с типами по умолчанию
 env = Env(
     DEBUG=(bool, False),
     MYSQL=(bool, False),
     ALLOWED_HOSTS=(list, []),
 )
 
+# Определяем BASE_DIR
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Читаем переменные из .env
 env.read_env(BASE_DIR / '.env')
 
 # Quick-start development settings - unsuitable for production
@@ -65,11 +67,8 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
     ],
-    'DEFAULT_PAGINATION_CLASS': 'store_8_09_25.pagination.CustomLimitOffsetPagination',
-    'PAGE_SIZE': 6,
-    'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend',
-    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20
 }
 
 TEMPLATES = [
@@ -155,47 +154,3 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Logging
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
-            'style': '{',
-        },
-        'simple': {
-            'format': '{levelname} {message}',
-            'style': '{',
-        },
-    },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple',
-        },
-        'file_http': {
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'store_8_09_25/logs', 'http_logs.log'),
-            'formatter': 'verbose',
-        },
-        'file_db': {
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'store_8_09_25/logs', 'db_logs.log'),
-            'formatter': 'verbose',
-        },
-    },
-    'loggers': {
-        'django.server': {
-            'handlers': ['console', 'file_http'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-        'django.db.backends': {
-            'handlers': ['file_db'],
-            'level': 'DEBUG',
-            'propagate': False,
-        },
-    },
-}
