@@ -2,14 +2,11 @@ from django.db import models
 from django.utils import timezone
 
 
-# --- Менеджер для мягкого удаления ---
 class CategoryManager(models.Manager):
     def get_queryset(self):
-        # Показываем только не удалённые категории
         return super().get_queryset().filter(is_deleted=False)
 
 
-# --- Категории ---
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)

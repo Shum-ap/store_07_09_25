@@ -1,7 +1,5 @@
-from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.pagination import CursorPagination
 
-class CustomLimitOffsetPagination(LimitOffsetPagination):
-    default_limit = 6
-    limit_query_param = 'limit'
-    offset_query_param = 'offset'
-    max_limit = 100
+class SafeCursorPagination(CursorPagination):
+    ordering = ['-created_at', '-id']
+    page_size = 6
