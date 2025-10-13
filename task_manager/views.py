@@ -5,7 +5,7 @@ from django.utils import timezone
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
-
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Category, Task, SubTask
 from .serializers import (
     CategorySerializer,
@@ -42,8 +42,9 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class TaskListCreateView(ListCreateAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskCreateSerializer
+    permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['completed', 'deadline']  # status = completed
+    filterset_fields = ['completed', 'deadline']
     search_fields = ['title', 'description']
     ordering_fields = ['created_at']
     ordering = ['-created_at']
@@ -60,6 +61,7 @@ class TaskRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 class SubTaskListCreateView(ListCreateAPIView):
     queryset = SubTask.objects.all()
     serializer_class = SubTaskCreateSerializer
+    permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['completed']
     search_fields = ['title']
@@ -70,6 +72,7 @@ class SubTaskListCreateView(ListCreateAPIView):
 class SubTaskRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     queryset = SubTask.objects.all()
     serializer_class = SubTaskCreateSerializer
+    permission_classes = [IsAuthenticated]
 
 
 # -------------------------------

@@ -17,13 +17,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from products import views as product_views
 from task_manager.views import CategoryViewSet
 
 router = DefaultRouter()
 
-# --- products ---
+# products
 router.register(r'suppliers', product_views.SupplierViewSet)
 router.register(r'products', product_views.ProductViewSet)
 router.register(r'product-details', product_views.ProductDetailViewSet)
@@ -32,11 +33,17 @@ router.register(r'customers', product_views.CustomerViewSet)
 router.register(r'orders', product_views.OrderViewSet)
 router.register(r'order-items', product_views.OrderItemViewSet)
 
-# --- categories (из task_manager) ---
+# categories (из task_manager)
 router.register(r'categories', CategoryViewSet, basename='task-category')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # JWT endpoints
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    # API routes
     path('api/v1/', include(router.urls)),
     path('api/v1/tasks/', include('task_manager.urls')),
 ]
