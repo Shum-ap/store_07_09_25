@@ -1,12 +1,17 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import TaskViewSet, SubTaskViewSet, TaskByDayListView
-
-router = DefaultRouter()
-router.register(r'tasks', TaskViewSet, basename='task')
-router.register(r'subtasks', SubTaskViewSet, basename='subtask')
+from django.urls import path
+from .views import (
+    TaskListCreateView,
+    TaskRetrieveUpdateDestroyView,
+    SubTaskListCreateView,
+    SubTaskRetrieveUpdateDestroyView,
+)
 
 urlpatterns = [
-    path('', include(router.urls)),
-    path('tasks/by-day/', TaskByDayListView.as_view(), name='task-by-day'),
+    # Tasks
+    path('tasks/', TaskListCreateView.as_view(), name='task-list-create'),
+    path('tasks/<int:pk>/', TaskRetrieveUpdateDestroyView.as_view(), name='task-detail'),
+
+    # SubTasks
+    path('subtasks/', SubTaskListCreateView.as_view(), name='subtask-list-create'),
+    path('subtasks/<int:pk>/', SubTaskRetrieveUpdateDestroyView.as_view(), name='subtask-detail'),
 ]
