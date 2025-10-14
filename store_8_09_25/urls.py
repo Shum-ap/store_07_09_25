@@ -38,7 +38,7 @@ schema_view = get_schema_view(
 
 from products import views as product_views
 from task_manager.views import CategoryViewSet
-
+from task_manager.views import register_view, logout_view, login_view
 router = DefaultRouter()
 
 # products
@@ -66,4 +66,9 @@ urlpatterns = [
     # Swagger
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+
+    # Register, Login, Logout
+    path('api/register/', register_view, name='register'),
+    path('api/login/', login_view, name='login'),
+    path('api/logout/', logout_view, name='logout'),
 ]

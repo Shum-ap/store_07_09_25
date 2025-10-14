@@ -5,20 +5,23 @@ from django.utils import timezone
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Category, Task, SubTask
 from .serializers import (
     CategorySerializer,
     TaskCreateSerializer,
     SubTaskCreateSerializer,
     TaskDetailSerializer,
-    SubTaskSerializer
+    SubTaskSerializer,
+    RegisterSerializer
 )
-from .permissions import IsOwnerOrReadOnly  # ← добавь
+from .permissions import IsOwnerOrReadOnly
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
 
-
-# 🔹 Category CRUD + мягкое удаление
-
+# Category CRUD + мягкое удаление
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -38,8 +41,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
         instance.save()
 
 
-# 🔹 Tasks CRUD — Generic Views
-
+# Tasks CRUD — Generic Views
 class TaskListCreateView(ListCreateAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskCreateSerializer
@@ -60,9 +62,7 @@ class TaskRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
 
 
-
-# 🔹 SubTasks CRUD — Generic Views
-
+# SubTasks CRUD — Generic Views
 class SubTaskListCreateView(ListCreateAPIView):
     queryset = SubTask.objects.all()
     serializer_class = SubTaskCreateSerializer
@@ -73,7 +73,7 @@ class SubTaskListCreateView(ListCreateAPIView):
     ordering_fields = ['created_at']
     ordering = ['-created_at']
 
-    def perform_create(self, serializer):  # ← добавь
+    def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
 
@@ -83,8 +83,7 @@ class SubTaskRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
 
 
-
-# 🔹 Aggregating endpoint
+# Aggregating endpoint
 class TaskByDayListView(ListAPIView):
     serializer_class = TaskDetailSerializer
 
@@ -106,9 +105,7 @@ class TaskByDayListView(ListAPIView):
         return Task.objects.all()
 
 
-
-# 🔹 Задание 1: Получение задач текущего пользователя
-
+# Получение задач текущего пользователя
 class MyTasksListView(ListAPIView):
     serializer_class = TaskCreateSerializer
     permission_classes = [IsAuthenticated]
@@ -117,3 +114,55 @@ class MyTasksListView(ListAPIView):
         if hasattr(self, 'request'):
             return Task.objects.filter(owner=self.request.user)
         return Task.objects.none()
+
+
+# Registate
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def register_view(request):
+    serializer = RegisterSerializer(data=request.data)
+    if serializer.is_valid():
+        user = serializer.save()
+        return Response({
+            "message": "Пользователь успешно зарегистрирован.",
+            "user_id": user.id
+        }, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Login
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login_view(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+
+    user = authenticate(username=username, password=password)
+
+    if user is None:
+        return Response({"detail": "Неверные учетные данные."}, status=status.HTTP_401_UNAUTHORIZED)
+
+    refresh = RefreshToken.for_user(user)
+
+    response = Response({"message": "Успешный вход."}, status=status.HTTP_200_OK)
+    response.set_cookie('refresh', str(refresh), httponly=True, secure=False)  # secure=True в продакшене
+    response.set_cookie('access', str(refresh.access_token), httponly=True, secure=False)
+    return response
+
+
+# Logout
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout_view(request):
+    try:
+        refresh_token = request.COOKIES.get('refresh')
+        if refresh_token:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+    except Exception:
+        pass
+
+    response = Response({"message": "Выход успешен."}, status=status.HTTP_205_RESET_CONTENT)
+    response.delete_cookie('refresh')
+    response.delete_cookie('access')
+    return response
