@@ -6,6 +6,7 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = '__all__'
+        ref_name = 'ProductsCategory'
 
 class SupplierSerializer(serializers.ModelSerializer):
     class Meta:

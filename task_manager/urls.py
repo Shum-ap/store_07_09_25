@@ -7,6 +7,7 @@ from .views import (
     SubTaskListCreateView,
     SubTaskRetrieveUpdateDestroyView,
     TaskByDayListView,
+    MyTasksListView,
 )
 
 router = DefaultRouter()
@@ -15,14 +16,17 @@ router.register(r'categories', CategoryViewSet, basename='category')
 urlpatterns = [
     path('', include(router.urls)),
 
-    # --- задачи ---
+    # задачи
     path('tasks/', TaskListCreateView.as_view(), name='task-list-create'),
     path('tasks/<int:pk>/', TaskRetrieveUpdateDestroyView.as_view(), name='task-detail'),
 
-    # --- подзадачи ---
+    # подзадачи
     path('subtasks/', SubTaskListCreateView.as_view(), name='subtask-list-create'),
     path('subtasks/<int:pk>/', SubTaskRetrieveUpdateDestroyView.as_view(), name='subtask-detail'),
 
-    # --- агрегирующий эндпойнт ---
+    # агрегирующий эндпоинт
     path('tasks/by-day/', TaskByDayListView.as_view(), name='task-by-day'),
+
+    # задачи текущего пользователя
+    path('my-tasks/', MyTasksListView.as_view(), name='my-tasks-list'),
 ]

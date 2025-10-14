@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 from django.utils import timezone
 
 
@@ -11,7 +12,6 @@ class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # для мягкого удаления
     is_deleted = models.BooleanField(default=False)
     deleted_at = models.DateTimeField(null=True, blank=True)
 
@@ -28,7 +28,6 @@ class Category(models.Model):
         return self.name
 
 
-# --- Задачи ---
 class Task(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
@@ -37,17 +36,18 @@ class Task(models.Model):
     due_date = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     completed = models.BooleanField(default=False)  # статус задачи
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks')  # ← добавь
 
     def __str__(self):
         return self.title
 
 
-# --- Подзадачи ---
 class SubTask(models.Model):
     title = models.CharField(max_length=200)
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='subtasks')
     completed = models.BooleanField(default=False)  # статус
     created_at = models.DateTimeField(auto_now_add=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subtasks')  # ← добавь
 
     def __str__(self):
         return self.title
