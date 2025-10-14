@@ -14,10 +14,10 @@ from .serializers import (
     TaskDetailSerializer,
     SubTaskSerializer
 )
-from .permissions import IsOwnerOrReadOnly  # ← добавь
+from .permissions import IsOwnerOrReadOnly 
 
 
-# 🔹 Category CRUD + мягкое удаление
+#  Category CRUD + мягкое удаление
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
@@ -38,7 +38,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
         instance.save()
 
 
-# 🔹 Tasks CRUD — Generic Views
+#  Tasks CRUD — Generic Views
 
 class TaskListCreateView(ListCreateAPIView):
     queryset = Task.objects.all()
@@ -61,7 +61,7 @@ class TaskRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
 
 
-# 🔹 SubTasks CRUD — Generic Views
+#  SubTasks CRUD — Generic Views
 
 class SubTaskListCreateView(ListCreateAPIView):
     queryset = SubTask.objects.all()
@@ -73,7 +73,7 @@ class SubTaskListCreateView(ListCreateAPIView):
     ordering_fields = ['created_at']
     ordering = ['-created_at']
 
-    def perform_create(self, serializer):  # ← добавь
+    def perform_create(self, serializer): 
         serializer.save(owner=self.request.user)
 
 
@@ -84,7 +84,7 @@ class SubTaskRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
 
 
-# 🔹 Aggregating endpoint
+#  Aggregating endpoint
 class TaskByDayListView(ListAPIView):
     serializer_class = TaskDetailSerializer
 
@@ -107,7 +107,7 @@ class TaskByDayListView(ListAPIView):
 
 
 
-# 🔹 Задание 1: Получение задач текущего пользователя
+#  Задание 1: Получение задач текущего пользователя
 
 class MyTasksListView(ListAPIView):
     serializer_class = TaskCreateSerializer
