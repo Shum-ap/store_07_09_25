@@ -17,9 +17,26 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
 
 from products import views as product_views
-from task_manager.views import CategoryViewSet
+from task_manager.views import CategoryViewSet, register_view, login_view, logout_view
+
+# Настройка Swagger
+schema_view = get_schema_view(
+   openapi.Info(
+      title="Task Manager API",
+      default_version='v1',
+      description="API documentation for Task Manager",
+      contact=openapi.Contact(email="contact@snippets.local"),
+      license=openapi.License(name="BSD License"),
+   ),
+   public=True,
+   permission_classes=(permissions.AllowAny,),
+)
 
 router = DefaultRouter()
 
@@ -37,6 +54,21 @@ router.register(r'categories', CategoryViewSet, basename='task-category')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # JWT endpoints
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    # Регистрация, вход, выход
+    path('api/register/', register_view, name='register'),
+    path('api/login/', login_view, name='login'),
+    path('api/logout/', logout_view, name='logout'),
+
+    # API routes
     path('api/v1/', include(router.urls)),
     path('api/v1/tasks/', include('task_manager.urls')),
+
+    # Swagger
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
