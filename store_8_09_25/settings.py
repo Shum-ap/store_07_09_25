@@ -20,6 +20,8 @@ env = Env(
     ALLOWED_HOSTS=(list, []),
 )
 
+AUTH_USER_MODEL = 'auth.User'
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 env.read_env(BASE_DIR / '.env')
 
@@ -57,7 +59,7 @@ ROOT_URLCONF = 'store_8_09_25.urls'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'task_manager.auth.JWTAuthenticationFromCookies',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
