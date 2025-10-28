@@ -22,6 +22,8 @@ env = Env(
 
 AUTH_USER_MODEL = 'auth.User'
 
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 env.read_env(BASE_DIR / '.env')
 
@@ -40,9 +42,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'django_filters',
-    'task_manager',
     'drf_yasg',
     'rest_framework_simplejwt.token_blacklist',
+    'task_manager.apps.TaskManagerConfig',
 ]
 
 MIDDLEWARE = [
